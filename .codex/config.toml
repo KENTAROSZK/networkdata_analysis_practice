@@ -1,0 +1,18 @@
+model = "gpt-5-codex"
+model_reasoning_effort = "medium"
+hide_agent_reasoning = false
+network_access = true
+sandbox_mode = "workspace-write"
+
+notify = ["bash", "/Users/my-user/.codex/notify_macos.sh"]
+
+[tools]
+web_search = true
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.serena]
+command = "uvx"
+args = ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "codex"]

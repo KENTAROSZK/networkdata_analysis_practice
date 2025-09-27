@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["--yes", "@upstash/context7-mcp"],
+      "env": {}
+    },
+    "codex": {
+      "command": "codex",
+      "args": ["mcp"]
+    }
+  }
+}
