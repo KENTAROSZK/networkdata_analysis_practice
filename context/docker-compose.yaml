@@ -1,0 +1,21 @@
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: ${USER_NAME}
+        USER_UID: ${USER_UID}
+        USER_GID: ${USER_GID}
+    container_name: dev-container
+    volumes:
+      - ..:/workspace
+      - ${HOME}/.ssh:/home/${USER_NAME}/.ssh:ro
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    environment:
+      - USER_NAME=${USER_NAME}
+    env_file:
+      - ../.env
