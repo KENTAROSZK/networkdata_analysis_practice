@@ -1,5 +1,3 @@
-Dockerfile
-# syntax=docker/dockerfile:1
 FROM ubuntu:22.04
 
 # 環境変数を読み込む
@@ -13,9 +11,16 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# ユーザーとグループの作成
-RUN groupadd --gid ${USER_GID} ${USER_NAME} && \
-    useradd --uid ${USER_UID} --gid ${USER_GID} -m -s /bin/bash ${USER_NAME} && \
+# ユーザーとグループの作成（既存のGID/UIDがある場合にも対応）
+RUN set -eux; \
+    if ! getent group "${USER_GID}" >/dev/null; then \
+        groupadd --gid "${USER_GID}" "${USER_NAME}"; \
+    fi; \
+    if ! id -u "${USER_NAME}" >/dev/null 2>&1; then \
+        useradd --uid "${USER_UID}" --gid "${USER_GID}" -m -s /bin/bash "${USER_NAME}"; \
+    else \
+        usermod -u "${USER_UID}" -g "${USER_GID}" "${USER_NAME}" || true; \
+    fi; \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # ユーザー切り替え
@@ -27,8 +32,8 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
 ENV NVM_DIR="/home/${USER_NAME}/.nvm"
 RUN \. "$NVM_DIR/nvm.sh" && nvm install 22
 
-# PATHにNode.jsとnpmを追加
-ENV PATH="$NVM_DIR/versions/node/v22.20.0/bin:$PATH"
+# ユーザーのローカルbinをPATHに追加（uvなどのローカルインストール用）
+ENV PATH="/home/${USER_NAME}/.local/bin:$PATH"
 
 # uv インストール
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -37,10 +42,13 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN \. "$NVM_DIR/nvm.sh" && uv python install 3.12
 
 # 各AI CLIツールのインストール
-RUN npm install -g @google/gemini-cli @anthropic-ai/claude-code @openai/codex @github/copilot
+RUN \. "$NVM_DIR/nvm.sh" && nvm use 22 && npm install -g @google/gemini-cli @anthropic-ai/claude-code @openai/codex @github/copilot
 
-# Jupyterのインストール（uv経由で）
-RUN \. "$NVM_DIR/nvm.sh" && uv pip install jupyter
+# Jupyterのインストール（uvで仮想環境を作成してインストール）
+ENV VENV_DIR=/home/${USER_NAME}/.venv/jupyter
+RUN uv venv "$VENV_DIR" && \
+    uv pip install --python "$VENV_DIR/bin/python" jupyterlab ipykernel
+ENV PATH="$VENV_DIR/bin:$PATH"
 
 # ワークスペースに移動（バインドマウント先）
-WORKDIR /workspace
+WORKDIR /home/${USER_NAME}/workspace

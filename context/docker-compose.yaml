@@ -10,9 +10,9 @@ services:
         USER_GID: ${USER_GID}
     container_name: dev-container
     volumes:
-      - ..:/workspace
+      - ..:/home/${USER_NAME}/workspace
       - ${HOME}/.ssh:/home/${USER_NAME}/.ssh:ro
-    working_dir: /workspace
+    working_dir: /home/${USER_NAME}/workspace
     stdin_open: true
     tty: true
     environment:
