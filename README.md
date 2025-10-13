@@ -29,3 +29,42 @@ make setup_agents
 ```bash
 make install_codex_config
 ```
+
+## Dockerを使ったセットアップ方法
+
+Dockerコンテナを使って開発環境を構築することができます。
+
+### 前提条件
+
+- DockerとDocker Composeがインストールされていること
+
+### 環境変数の設定
+
+`.env`ファイルを作成し、以下の環境変数を設定してください：
+
+```
+USER_NAME=your_username
+USER_UID=1000
+USER_GID=1000
+```
+
+### コンテナの起動
+
+以下のコマンドでコンテナを起動します：
+
+```bash
+docker-compose -f ./context/docker-compose.yaml up -d
+```
+
+### コンテナへの接続
+
+```bash
+docker-compose -f ./context/docker-compose.yaml exec dev bash
+```
+
+コンテナ内には以下のツールがインストールされています：
+- Node.js 22
+- Python 3.12 (uv経由)
+- AI CLIツール: gemini-cli, claude-code, codex, copilot
+- OpenCode AI
+- Jupyter
