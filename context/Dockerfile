@@ -7,7 +7,12 @@ ARG USER_GID
 
 # 必要なパッケージのインストール
 RUN apt-get update && \
-    apt-get install -y curl git make sudo && \
+    apt-get install -y curl \
+    git \
+    make \
+    sudo \
+    unzip \
+    && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -43,6 +48,9 @@ RUN \. "$NVM_DIR/nvm.sh" && uv python install 3.12
 
 # 各AI CLIツールのインストール
 RUN \. "$NVM_DIR/nvm.sh" && nvm use 22 && npm install -g @google/gemini-cli @anthropic-ai/claude-code @openai/codex @github/copilot
+
+# OpenCode AI インストール
+RUN curl -fsSL https://opencode.ai/install | bash
 
 # Jupyterのインストール（uvで仮想環境を作成してインストール）
 ENV VENV_DIR=/home/${USER_NAME}/.venv/jupyter
