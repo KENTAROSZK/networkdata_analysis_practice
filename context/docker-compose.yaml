@@ -19,3 +19,5 @@ services:
       - USER_NAME=${USER_NAME}
     env_file:
       - ../.env
+    ports:
+      - "8888:8888"

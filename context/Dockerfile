@@ -58,5 +58,15 @@ RUN uv venv "$VENV_DIR" && \
     uv pip install --python "$VENV_DIR/bin/python" jupyterlab ipykernel
 ENV PATH="$VENV_DIR/bin:$PATH"
 
+# ✅ Jupyter の設定ファイルを生成して永続化（これをしておいた方がリモートサーバでjupyter接続でつまづかずに済む）
+RUN jupyter server --generate-config && \
+    echo "c.ServerApp.ip = '0.0.0.0'\n\
+c.ServerApp.port = 8888\n\
+c.ServerApp.allow_origin = '*'\n\
+c.ServerApp.allow_remote_access = True\n\
+c.ServerApp.disable_check_xsrf = True\n\
+c.ServerApp.open_browser = False\n\
+c.ServerApp.token = ''" >> /home/${USER_NAME}/.jupyter/jupyter_server_config.py
+
 # ワークスペースに移動（バインドマウント先）
 WORKDIR /home/${USER_NAME}/workspace
