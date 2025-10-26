@@ -12,6 +12,7 @@ RUN apt-get update && \
     make \
     sudo \
     unzip \
+    build-essential \
     && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
